@@ -1,0 +1,11 @@
+<h2>This is the form to make a new player</h2>
+{% if error %}
+    <font color="red">{{ error }}</font>
+{% endif %}
+
+<form action="/player/new/" method="POST">
+    {% csrf_token %}
+    User Name:<input type="text" name="name"/>
+    <br />
+    <input type="submit" value="Submit" />
+</form>
