@@ -1,0 +1,15 @@
+<h1>This is the new page for terms. And we are in a template</h1>
+<br />
+<h2>Let's make a new term.</h2>
+<form action="/term/new/" method="POST">
+    {% csrf_token %}
+    Term: <input type="text" name = "term" /><br />
+    Genre: <input type="text" name = "genre" /><br />
+    Clue 1: <input type="text" name = "clue_1" /><br />
+    Clue 2: <input type="text" name = "clue_2" /><br />
+    Clue 3: <input type="text" name = "clue_3" /><br />
+    Clue 4: <input type="text" name = "clue_4" /><br />
+    Clue 5: <input type="text" name = "clue_5" /><br />
+    <input type="submit" value="Submit">
+
+</form>

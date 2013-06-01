@@ -162,8 +162,6 @@ LOGGING = {
 
 try:
     from settings_dev import *
-    print 'We are in a testing environment'
 except ImportError:
-    print 'We are in a development environment'
     import dj_database_url
     DATABASES['default'] =  dj_database_url.config()

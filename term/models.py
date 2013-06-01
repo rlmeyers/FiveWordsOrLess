@@ -12,9 +12,12 @@ class Term(models.Model):
     genres       = models.ManyToManyField(Genre)
 
     def __unicode__(self):
-        return self.term_content
+        return '%s' % (self.term_content,)
 
 class Clue(models.Model):
     clue_content = models.CharField(max_length = 200)
     term         = models.ForeignKey(Term)
     clue_number  = models.IntegerField()
+
+    def __unicode__(self):
+        return 'Term: %s, Clue: %s, Number: %s' %(self.term,self.clue_content,self.clue_number)
