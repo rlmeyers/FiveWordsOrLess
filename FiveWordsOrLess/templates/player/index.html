@@ -1,6 +1,6 @@
 <h1>Here are the Players in the Database</h1>
 <ul>
     {% for player in players %}
-        <li><a herf="/player/{{ player.id }}/">{{ player.name }}</a></li>
+        <li><a href="/player/{{ player.id }}/">{{ player.name|capfirst }}</a></li>
     {% endfor %}
 </ul>

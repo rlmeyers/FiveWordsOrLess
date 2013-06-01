@@ -1,0 +1,6 @@
+<h2>Start a New Game</h2>
+<form action="/player/{{ player.id }}/game/new/" method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>

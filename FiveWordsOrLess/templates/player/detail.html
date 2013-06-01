@@ -1,2 +1,5 @@
 <h2>This is the player info page for {{ player.name }}</h2>
 
+<form action="/player/{{ player.id }}/game/new/" method="GET">
+    <input type = "submit" value="Create New Game" />
+</form>
