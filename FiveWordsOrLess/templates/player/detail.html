@@ -1,5 +1,22 @@
 <h2>This is the player info page for {{ player.name }}</h2>
-
+<h3>Active Games:</h3>
+<ul>
+    {% for game in active_games %}
+        <form action = "/game/{{ game.id }}/player/{{ player.id }}/" method="GET"><input type="submit" value="{{ game.name }}" /></form>
+    {% endfor %}
+</ul>
+<h3>Inactive Games:</h3>
+<ul>
+    {% for game in inactive_games %}
+        <form action = "/game/{{ game.id }}/" method="GET">{{ game.name }} <input type="submit" value="view" /></form>
+    {% endfor %}
+</ul>
+<h3>New Games:</h3>
+<ul>
+    {% for game in new_games %}
+    <form action="/game/{{ game.id }}/player/{{ player.id }}/" method="POST">{% csrf_token %}{{ game.name }} <input name="submit" type="submit" value="accept" /> <input name="submit" type="submit" value="decline" /></form>
+{% endfor %}
+</ul>
 <form action="/player/{{ player.id }}/game/new/" method="GET">
     <input type = "submit" value="Create New Game" />
 </form>

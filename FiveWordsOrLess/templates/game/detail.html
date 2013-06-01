@@ -1,0 +1,7 @@
+<h2>This is the Info About The Game {{ game.name|capfirst }}</h2>
+<h4>Players:</h4>
+<ul>
+    {% for player_game in game.player_game_set.all %}
+    <li>{{ player_game.player.name|capfirst }}</li>
+    {% endfor %}
+</ul>

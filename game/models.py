@@ -1,5 +1,6 @@
 from django.db import models
 from term.models import Genre, Clue
+from django.db.models import Q
 
 class Game(models.Model):
     date   = models.DateField()

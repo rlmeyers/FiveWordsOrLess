@@ -17,4 +17,5 @@ urlpatterns = patterns('',
 
     url(r'^term/',include('term.urls')),
     url(r'^player/',include('player.urls')),
+    url(r'^game/',include('game.urls')),
 )
