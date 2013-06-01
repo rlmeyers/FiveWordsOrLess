@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from term.models import Genre, Term, Clue
+from django.template import RequestContext
 
 def new(request):
     if request.method == 'GET':
@@ -13,6 +14,8 @@ def new(request):
             genre = Genre(genre_name=request.POST['genre'])
             genre.save()
             print 'Saved Genre: %s' % str(genre)
+        if request.POST['term'] == '':
+            return render(request,"term/new.html",{'error':'You must have a term name'})
         term = Term(term_content = request.POST['term'])
         term.save()
         term.genres.add(genre)

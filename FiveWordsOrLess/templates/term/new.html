@@ -1,4 +1,8 @@
 <h1>This is the new page for terms. And we are in a template</h1>
+{% if error %}
+    <br />
+    <font color="red">{{ error }}</font>
+{% endif %}
 <br />
 <h2>Let's make a new term.</h2>
 <form action="/term/new/" method="POST">
