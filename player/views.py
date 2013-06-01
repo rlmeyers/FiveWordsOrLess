@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
-from player.models import Player
+from player.models import Player, Player_Game
 from term.models import Genre
 from django import forms
+from game.models import Game
+from django.utils import timezone
 
 def new(request):
     if request.method == 'GET':
@@ -30,13 +32,23 @@ def new_game(request,pk):
         player = Player.objects.get(pk=pk)
         players = Player.objects.all()
         genres  = Genre.objects.all()
-        form = NewGameForm()
-        form.players = forms.ModelMultipleChoiceField(Player.objects.filter())
-        return render(request,'player/new_game.html',{'form':form,'player':player})
+        return render(request,'player/new_game.html',{'players':players,'genres':genres,'player':player})
     else:
         print '## Adding New Game ##'
-        for key in request.POST.keys():
-            print key,request.POST[key]
+        game = Game(name = request.POST['name'],date = timezone.now())
+        game.save()
+        print '## Saved Game ID: %s with name %s ##' % (game.id,game.name)
+        player = Player.objects.get(pk=pk)
+        PG = Player_Game(game = game, player = player, score = 0,accepted = True, declined = False)
+        print '## The first player in the game is %s with ID %s ##' % (player.name, player.id)
+        PG.save()
+        players = request.POST.getlist('players')
+        for p in players:
+            player = Player.objects.get(pk = int(p))
+            PG = Player_Game(game = game, player = player, score = 0, accepted = False, declined = False)
+            PG.save()
+            print '## Player %s with ID %s was invited to this game ##' % (player.name,player.id)
+
         return HttpResponse("Well we found a post to /player/%s/game/new/"%pk)
 
 class NewGameForm(forms.Form):

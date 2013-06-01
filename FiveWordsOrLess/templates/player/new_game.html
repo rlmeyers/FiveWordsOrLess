@@ -1,6 +1,21 @@
 <h2>Start a New Game</h2>
 <form action="/player/{{ player.id }}/game/new/" method="POST">
     {% csrf_token %}
-    {{ form }}
+    Input Name: <input type="text" name="name" />
+    <br />
+    Genres: 
+    <select name = "genres" multiple>
+        {% for genre in genres %}
+            <option value="{{ genre.id }}">{{ genre.genre_name }}</option>
+        {% endfor %}
+    </select>
+    Players:
+    <select name = "players" multiple>
+        {% for p in players %}
+            {% if p.id != player.id %}
+                <option value="{{ p.id }}">{{ p.name|capfirst }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>  
     <input type="submit" value="Submit" />
 </form>

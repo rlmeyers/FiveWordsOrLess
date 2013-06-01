@@ -13,6 +13,5 @@ class Player_Game(models.Model):
     player = models.ForeignKey(Player)
     game   = models.ForeignKey(Game)
     score  = models.IntegerField()
-    current_clue = models.ForeignKey(Clue)
     accepted = models.BooleanField()
     declined = models.BooleanField()
