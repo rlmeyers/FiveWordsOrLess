@@ -1,0 +1,13 @@
+<h2>Here is the info about {{ term.term_content }}</h2>
+<h4>Genres:</h4>
+<ul>
+    {% for genre in genres %}
+        <li>{{ genre.genre_name }}</li>
+    {% endfor %}
+</ul>
+<h4>Clues:</h4>
+<ul>
+    {% for clue in clues %}
+        <li>{{ clue.clue_content }}</li>
+    {% endfor %}
+</ul>

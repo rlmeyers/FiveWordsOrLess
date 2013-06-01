@@ -19,14 +19,23 @@ def new(request):
         print 'Saved Term: %s' % str(term)
         n = 0
         clues = ['clue_1','clue_2','clue_3','clue_4','clue_5']
+        cs = []
         for c in clues:
             if request.POST[c] != '':
                 clue = Clue(clue_content=request.POST[c], term = term, clue_number = n)
+                cs.append(request.POST[c])
                 n += 1
                 clue.save()
                 print 'Saved Clue: %s' % str(clue)
-        return HttpResponse('This is a post at /term/new')
+        return render(request,'term/submitted.html',{'genre':request.POST['genre'],'clues':cs,'term':request.POST['term']})
 
 
 def home(request):
-    return HttpResponse('This is the home page for terms')
+    terms = Term.objects.all()
+    return render(request,'term/index.html',{'terms':terms})
+
+def detail(request,pk):
+    term = Term.objects.get(pk=pk)
+    clues = term.clues.all()
+    genres = term.genres.all()
+    return render(request,'term/detail.html',{'term':term,'clues':clues,'genres':genres})

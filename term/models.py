@@ -16,7 +16,7 @@ class Term(models.Model):
 
 class Clue(models.Model):
     clue_content = models.CharField(max_length = 200)
-    term         = models.ForeignKey(Term)
+    term         = models.ForeignKey(Term,related_name='clues')
     clue_number  = models.IntegerField()
 
     def __unicode__(self):

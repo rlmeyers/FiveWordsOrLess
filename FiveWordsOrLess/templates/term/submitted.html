@@ -1,0 +1,11 @@
+<h2>Term Added</h2>
+<h3>Term: {{ term }}</h3>
+<h3>Genre: {{ genre }}</h3>
+<h3>Clues:</h3>
+<ul>
+{% for clue in clues %}
+    <li>{{ clue }}</li>
+{% endfor %}
+</ul>
+<br />
+<a href="/term/new/">Submit Another</a>

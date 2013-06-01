@@ -1,0 +1,6 @@
+<h2>Here are the Terms in the Database</h2>
+<ul>
+    {% for term in terms %}
+        <li><a href="/term/{{term.id}}">{{ term.term_content }}</a></li>
+    {% endfor %}
+</ul>
