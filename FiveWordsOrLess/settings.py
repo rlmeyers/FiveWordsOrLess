@@ -155,6 +155,7 @@ LOGGING = {
 
 try:
     from settings_dev import *
+    print 'It looks like a production environment'
 except ImportError:
     print 'Well we are in a development environment'
     import dj_database_url
