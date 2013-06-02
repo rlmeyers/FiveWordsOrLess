@@ -1,4 +1,7 @@
 <h2>This is the player info page for {{ player.name }}</h2>
+{% if message %}
+    <font color="red" >{{ message }}</font>
+{% endif %}
 <h3>Active Games:</h3>
 <ul>
     {% for game in active_games %}

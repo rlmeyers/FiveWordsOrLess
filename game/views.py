@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
-from player.models import Player, Player_Game, Turn
+from player.models import Player, Player_Game, Turn, Active_Turn
 from term.models import Genre
 from django import forms
 from game.models import Game
 from django.utils import timezone
 from game.helpers import activate_game
 from django.db.models import Q
+from term.helpers import get_next_term
 
 def new(request):
     if request.method == 'GET':
@@ -80,23 +81,66 @@ def player_game(request,gpk,ppk):
         print '## We are checking out game %s with ID %s ##' % (game.name,game.id)
         current_clue = None
         turns = None
-        player_turn  = Turn.objects.filter(Q(active_turn__active=True, player_game__player__id=ppk, player_game__game__id=gpk))[0]
-        current_clue = game.active_turn.clue if not player_turn.guess else None
-        turns = Turn.objects.filter(Q(player_game__player__id=ppk,player_game__id=gpk, active_turn__clue__term__id=game.active_turn.clue.term.id,guess__isnull=False)).order_by('active_turn__clue__clue_number')
+        player_turns  = Turn.objects.filter(Q(active_turn__active=True, player_game__player__id=ppk, player_game__game__id=gpk))
+        for player_turn in player_turns:
+            print 'Player Turn: guess: %s part of game: %s by player: %s and is_active: %s and is on term: %s' % (player_turn.guess, player_turn.player_game.game.name,player_turn.player_game.player.name,player_turn.active_turn.active,player_turn.active_turn.clue.clue_content)
+        print 'There were %s turns in the database' % len(player_turns)
+        player_turn = player_turns[0]
+        print 'The guess in the database was %s' % player_turn.guess
+        current_clues = game.active_turn_set.filter(active=True)
+        current_clue = current_clues[0] if len(current_clues)==1 else None
+        turns = Turn.objects.filter(Q(player_game__player__id=ppk,player_game__game__id=gpk, active_turn__clue__term__id=current_clue.clue.term.id,guess__isnull=False)).order_by('active_turn__clue__clue_number')
         print '## We found these turns %s ##' % ', '.join([str(turn) for turn in turns])
-        return render(request,'game/player_game.html',{'current_clue':current_clue,'turns':turns,'game':game,'player':player})
+        return render(request,'game/player_game.html',{'current_clue':current_clue.clue,'turns':turns,'game':game,'player':player})
 
 
 def submit(request,gpk,ppk):
     if request.method=="POST":
+        game = Game.objects.get(pk=gpk)
         player_games = Player_Game.objects.filter(Q(game__id=gpk,player__id=ppk))
         if len(player_games)>0:
             player_game = player_games[0]
             player_turn = Turn.objects.filter(Q(active_turn__active=True, player_game__player__id=ppk, player_game__game__id=gpk))[0]
             player_turn.guess = 'PASS' if request.POST.has_key('pass') else request.POST['answer']
+            player_was_correct = player_turn.guess == player_turn.active_turn.clue.term.term_content
             print '## The Player Guessed %s for the term %s ##' % (player_turn.guess,player_turn.active_turn.clue.term.term_content,)
             player_turn.save()
-            return HttpResponse("You were %s" % ("Correct" if player_turn.guess == player_turn.active_turn.clue.term.term_content else "Incorrect"))
+            all_have_played = player_turn.active_turn.all_have_played()
+            print '## All the players have played ##' if all_have_played else '## Still waiting on players ##'
+            has_right_answer =  player_turn.active_turn.has_right_answer()
+            if has_right_answer:
+                print '## Someone got the answer right ##'
+            else:
+                print '## No one got the answer right ##'
+            if all_have_played:
+                clue = None
+                if has_right_answer:
+                    print '## We need a new term ##'
+                else:
+                    print '## We need a new clue ##'
+                    clue = player_turn.active_turn.clue.get_next()
+                if not clue:
+                    print '## The term have no clues left ##'
+                    clue = get_next_term(gpk)
+                    if not clue:
+                        game.active = False
+                        game.save()
+                        return HttpReponse("There were no more terms in the database")
+                AT = player_turn.active_turn
+                AT.active = False
+                AT.save()
+                AT = Active_Turn(game=game,clue = clue,active=True)
+                AT.clue = clue
+                AT.save()
+                user_games = Player_Game.objects.filter(Q(game__id=gpk))
+                for ug in user_games:
+                    turn = Turn(player_game = ug, active_turn=AT)
+                    turn.save()
+
+            active_games   = Game.objects.filter(Q(active=True,player_game__accepted=True, player_game__player__id=ppk,player_game__turn__active_turn__active=True,player_game__turn__guess=None))
+            inactive_games = Game.objects.filter(Q(active=False,player_game__accepted=True, player_game__player__id=ppk)|Q(active=True,player_game__accepted=True,player_game__player__id=ppk,player_game__turn__active_turn__active=True,player_game__turn__guess__isnull=False))
+            new_games      = Game.objects.filter(Q(active__exact=False,player_game__player__id=ppk,player_game__accepted=False,player_game__declined=False))
+            return render(request,'player/detail.html',{'message':('You were correct' if player_was_correct else 'You were incorrect'),'active_games':active_games,'inactive_games':inactive_games,'new_games':new_games})
         else:
             return HttpResponse("Something went wrong.  There were %s player_games found in the database for player %s" %(len(player_games),ppk))
     else:

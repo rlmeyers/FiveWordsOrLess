@@ -21,3 +21,7 @@ class Clue(models.Model):
 
     def __unicode__(self):
         return 'Term: %s, Clue: %s, Number: %s' %(self.term,self.clue_content,self.clue_number)
+
+    def get_next(self):
+        clues = Clue.objects.filter(clue_number__gt=self.clue_number).order_by('clue_number')
+        if clues: return clues[0]
