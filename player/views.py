@@ -27,7 +27,7 @@ def home(request):
 def detail(request,pk):
     player = Player.objects.get(pk=pk)
     active_games   = Game.objects.filter(Q(active=True,player_game__accepted=True, player_game__player__id=pk,player_game__turn__active_turn__active=True,player_game__turn__guess=None))
-    inactive_games = Game.objects.filter(Q(active=False,player_game__accepted=True, player_game__player__id=pk))
+    inactive_games = Game.objects.filter(Q(active=False,player_game__accepted=True, player_game__player__id=pk)|Q(active=True,player_game__accepted=True,player_game__player__id=pk,player_game__turn__active_turn__active=True,player_game__turn__guess__isnull=False))
     new_games      = Game.objects.filter(Q(active__exact=False,player_game__player__id=pk,player_game__accepted=False,player_game__declined=False))
     return render(request,'player/detail.html',{'player':player,'new_games':new_games,'inactive_games':inactive_games,'active_games':active_games})
 
@@ -56,7 +56,7 @@ def new_game(request,pk):
             PG = Player_Game(game = game, player = player, score = 0, accepted = False, declined = False)
             PG.save()
             print '## Player %s with ID %s was invited to this game ##' % (player.name,player.id)
-        return HttpResponse("Well we found a post to /player/%s/game/new/"%pk)
+        return HttpResponseRedirect("/player/%s/"%pk)
 
 class NewGameForm(forms.Form):
     name = forms.CharField(max_length=200)

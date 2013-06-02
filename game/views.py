@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext
-from player.models import Player, Player_Game
+from player.models import Player, Player_Game, Turn
 from term.models import Genre
 from django import forms
 from game.models import Game
 from django.utils import timezone
 from game.helpers import activate_game
+from django.db.models import Q
 
 def new(request):
     if request.method == 'GET':
@@ -72,4 +73,31 @@ def player_game(request,gpk,ppk):
             game.save()
             activate_game(game.id)
             print '## Set Game %s with ID %s to active ##' % (game.name,game.id)
-    return HttpResponse("Well we are here")
+        return HttpResponseRedirect("/player/%s/"%ppk)
+    else:
+        game = Game.objects.get(pk=gpk)
+        player = Player.objects.get(pk=ppk)
+        print '## We are checking out game %s with ID %s ##' % (game.name,game.id)
+        current_clue = None
+        turns = None
+        player_turn  = Turn.objects.filter(Q(active_turn__active=True, player_game__player__id=ppk, player_game__game__id=gpk))[0]
+        current_clue = game.active_turn.clue if not player_turn.guess else None
+        turns = Turn.objects.filter(Q(player_game__player__id=ppk,player_game__id=gpk, active_turn__clue__term__id=game.active_turn.clue.term.id,guess__isnull=False)).order_by('active_turn__clue__clue_number')
+        print '## We found these turns %s ##' % ', '.join([str(turn) for turn in turns])
+        return render(request,'game/player_game.html',{'current_clue':current_clue,'turns':turns,'game':game,'player':player})
+
+
+def submit(request,gpk,ppk):
+    if request.method=="POST":
+        player_games = Player_Game.objects.filter(Q(game__id=gpk,player__id=ppk))
+        if len(player_games)>0:
+            player_game = player_games[0]
+            player_turn = Turn.objects.filter(Q(active_turn__active=True, player_game__player__id=ppk, player_game__game__id=gpk))[0]
+            player_turn.guess = 'PASS' if request.POST.has_key('pass') else request.POST['answer']
+            print '## The Player Guessed %s for the term %s ##' % (player_turn.guess,player_turn.active_turn.clue.term.term_content,)
+            player_turn.save()
+            return HttpResponse("You were %s" % ("Correct" if player_turn.guess == player_turn.active_turn.clue.term.term_content else "Incorrect"))
+        else:
+            return HttpResponse("Something went wrong.  There were %s player_games found in the database for player %s" %(len(player_games),ppk))
+    else:
+        return HttpResponseRedirect("/game/%s/player/%s/" % (gpk,ppk,))

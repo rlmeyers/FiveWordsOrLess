@@ -19,7 +19,7 @@ class Player_Game(models.Model):
 class Active_Turn(models.Model):
     active  = models.BooleanField()
     clue    = models.ForeignKey(Clue)
-    game    = models.ForeignKey(Game)
+    game    = models.OneToOneField(Game)
 
 class Turn(models.Model):
     player_game = models.ForeignKey(Player_Game)

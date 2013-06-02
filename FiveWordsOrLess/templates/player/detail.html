@@ -8,7 +8,7 @@
 <h3>Inactive Games:</h3>
 <ul>
     {% for game in inactive_games %}
-        <form action = "/game/{{ game.id }}/" method="GET">{{ game.name }} <input type="submit" value="view" /></form>
+    <form action = "/game/{{ game.id }}/player/{{ player.id }}/" method="GET">{{ game.name }} <input type="submit" value="view" /></form>
     {% endfor %}
 </ul>
 <h3>New Games:</h3>
