@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+venv
+*pyc
+*db
+*sqlite3
+FiveWordsOrLess/settings_dev.py
+=======
+*.log
+*.pot
+*.pyc
+local_settings.py
+>>>>>>> 57b5213d262dc8d8a7da872208d27b33e45904ed

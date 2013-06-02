@@ -1,0 +1,16 @@
+<h2>This is Game {{ game.name }}</h2>
+{% if turns %}
+    we have clues
+    {% for turn in turns %}
+    <br />
+    clue: {{ turn.active_turn.clue.clue_content }} guess: {{ turn.guess }}
+    {% endfor %}
+{% endif %}
+{% if current_clue %}
+<form action="/game/{{ game.id }}/player/{{ player.id }}/submit/" method="POST">
+    {% csrf_token %}
+    Current Clue: {{ current_clue.clue_content }} <input type="text" name="answer" /><input type="submit" name = "submit" value="guess"/><input type="submit" name="pass" value="pass" />
+</form>
+{% else %}
+<form action="/player/{{ player.id }}/" method="GET"><input type="submit" value="Other Games" /></form>
+{% endif %}
